@@ -266,7 +266,7 @@
         /* Flip card styles */
         .wish-card {
             perspective: 1000px;
-            height: 220px; /* Increased height for better spacing */
+            height: 220px;
             cursor: pointer;
         }
         
@@ -347,7 +347,7 @@
             color: rgba(255, 255, 255, 0.8);
             font-style: italic;
             padding: 10px;
-            text-align: right;
+            text-align: center;
             width: 100%;
             background: rgba(0, 0, 0, 0.1);
             border-radius: 0 0 20px 20px;
@@ -559,7 +559,6 @@
                         <div class="wish-card-front">
                             <div class="wish-name">${wish.name}</div>
                             <div class="click-hint">Click to see message</div>
-                            <span class="timestamp">${formatDate(wish.timestamp)}</span>
                         </div>
                         <div class="wish-card-back">
                             <div class="wish-message">${wish.message}</div>
