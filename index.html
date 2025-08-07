@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday!</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Baloo+2:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Baloo 2', cursive;
+            background: linear-gradient(135deg, #ffafbd, #ffc3a0);
+            color: #5a3e36;
+            min-height: 100vh;
+            padding: 20px;
+            background-image: url('https://i.postimg.cc/Lh78gVcc/IMG-2769.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-blend-mode: overlay;
+            background-color: rgba(255, 255, 255, 0.85);
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 0;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 3px solid #ff7aa2;
+        }
+        
+        h1 {
+            font-family: 'Pacifico', cursive;
+            font-size: 4rem;
+            color: #d64161;
+            text-shadow: 3px 3px 0 #ffb6c1;
+            margin-bottom: 20px;
+        }
+        
+        .birthday-img {
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 8px solid #ff7aa2;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            margin: 20px auto;
+            display: block;
+        }
+        
+        .wish-form {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
+            border: 3px solid #ffb347;
+        }
+        
+        .form-title {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #d64161;
+            font-size: 2.2rem;
+            font-weight: 700;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #5a3e36;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ffb6c1;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-family: 'Baloo 2', cursive;
+            transition: all 0.3s;
+        }
+        
+        input:focus, textarea:focus {
+            border-color: #d64161;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(214, 65, 97, 0.2);
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .btn {
+            background: linear-gradient(to right, #ff7aa2, #ffb347);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border-radius: 10px;
+            cursor: pointer;
+            display: block;
+            width: 100%;
+            transition: all 0.3s;
+            font-family: 'Baloo 2', cursive;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .wishes-container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 3px solid #a2d9ce;
+        }
+        
+        .wishes-title {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #d64161;
+            font-size: 2.2rem;
+            font-weight: 700;
+        }
+        
+        .wishes-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+        
+        .wish-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-top: 5px solid #ff7aa2;
+            position: relative;
+            transition: all 0.3s;
+        }
+        
+        .wish-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .wish-card::before {
+            content: """;
+            position: absolute;
+            top: -20px;
+            left: 10px;
+            font-size: 80px;
+            color: #ffb6c1;
+            opacity: 0.3;
+            font-family: Georgia, serif;
+        }
+        
+        .wish-name {
+            font-weight: 700;
+            color: #d64161;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            border-bottom: 2px dashed #ffb6c1;
+            padding-bottom: 5px;
+        }
+        
+        .wish-message {
+            font-size: 1.1rem;
+            line-height: 1.5;
+            color: #5a3e36;
+        }
+        
+        .timestamp {
+            display: block;
+            text-align: right;
+            font-size: 0.8rem;
+            color: #888;
+            margin-top: 15px;
+        }
+        
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: #ff7aa2;
+            border-radius: 50%;
+            animation: fall linear forwards;
+            z-index: 1000;
+        }
+        
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #5a3e36;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 3rem;
+            }
+            
+            .birthday-img {
+                width: 200px;
+                height: 200px;
+            }
+            
+            .wishes-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Happy Birthday!</h1>
+            <img src="https://i.postimg.cc/Lh78gVcc/IMG-2769.jpg" alt="Birthday Celebration" class="birthday-img">
+            <p style="font-size: 1.5rem; margin-top: 20px; max-width: 600px; margin: 20px auto;">
+                Leave your birthday wishes and see messages from everyone in real-time!
+            </p>
+        </header>
+        
+        <section class="wish-form">
+            <h2 class="form-title">Send Your Birthday Wish</h2>
+            <form id="wishForm">
+                <div class="input-group">
+                    <label for="name">Your Name</label>
+                    <input type="text" id="name" placeholder="Enter your name" required>
+                </div>
+                <div class="input-group">
+                    <label for="message">Your Birthday Message</label>
+                    <textarea id="message" placeholder="Write your special birthday message..." required></textarea>
+                </div>
+                <button type="submit" class="btn">
+                    <i class="fas fa-paper-plane"></i> Send Wish
+                </button>
+            </form>
+        </section>
+        
+        <section class="wishes-container">
+            <h2 class="wishes-title">Birthday Wishes</h2>
+            <div id="wishesList" class="wishes-list">
+                <!-- Wishes will be displayed here -->
+            </div>
+        </section>
+        
+        <footer>
+            <p>Made with ❤️ | Birthday Wishes Board</p>
+        </footer>
+    </div>
+
+    <script>
+        // ===================================================================
+        // STEP 1: PASTE YOUR FIREBASE CONFIG HERE
+        // ===================================================================
+        // Replace this with your Firebase project config
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        // ===================================================================
+        
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        
+        // DOM Elements
+        const wishForm = document.getElementById('wishForm');
+        const nameInput = document.getElementById('name');
+        const messageInput = document.getElementById('message');
+        const wishesList = document.getElementById('wishesList');
+        
+        // Create confetti effect
+        function createConfetti() {
+            const colors = ['#ff7aa2', '#ffb347', '#a2d9ce', '#d64161', '#ffb6c1'];
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = Math.random() * 10 + 5 + 'px';
+                confetti.style.height = confetti.style.width;
+                confetti.style.animationDuration = Math.random() * 3 + 2 + 's';
+                document.body.appendChild(confetti);
+                
+                // Remove confetti after animation completes
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
+            }
+        }
+        
+        // Format date
+        function formatDate(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleString();
+        }
+        
+        // Submit wish to Firebase
+        wishForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const name = nameInput.value.trim();
+            const message = messageInput.value.trim();
+            
+            if (name && message) {
+                // Create wish object
+                const wish = {
+                    name: name,
+                    message: message,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                };
+                
+                // Push to database
+                database.ref('wishes').push(wish)
+                    .then(() => {
+                        // Clear inputs
+                        nameInput.value = '';
+                        messageInput.value = '';
+                        
+                        // Create confetti effect
+                        createConfetti();
+                    })
+                    .catch((error) => {
+                        console.error("Error saving wish: ", error);
+                        alert("Couldn't save your wish. Please try again.");
+                    });
+            }
+        });
+        
+        // Listen for new wishes
+        database.ref('wishes').orderByChild('timestamp').on('value', (snapshot) => {
+            wishesList.innerHTML = ''; // Clear the list
+            
+            snapshot.forEach((childSnapshot) => {
+                const wish = childSnapshot.val();
+                const wishKey = childSnapshot.key;
+                
+                // Create wish card
+                const wishCard = document.createElement('div');
+                wishCard.className = 'wish-card';
+                wishCard.innerHTML = `
+                    <div class="wish-name">${wish.name}</div>
+                    <div class="wish-message">${wish.message}</div>
+                    <span class="timestamp">${formatDate(wish.timestamp)}</span>
+                `;
+                
+                wishesList.prepend(wishCard); // Add to top of list
+            });
+        });
+        
+        // Create initial confetti
+        setTimeout(createConfetti, 1000);
+        setInterval(createConfetti, 15000); // Create confetti every 15 seconds
+    </script>
+</body>
+</html>
