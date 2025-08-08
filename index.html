@@ -472,6 +472,9 @@
         const messageInput = document.getElementById('message');
         const wishesList = document.getElementById('wishesList');
         
+        // Object to store wish elements by key
+        const wishElements = {};
+        
         // Create confetti effect
         function createConfetti() {
             const colors = ['#ff7aa2', '#ffb347', '#a2d9ce', '#d64161', '#ffb6c1', '#f9d5bb', '#a6dcef'];
@@ -543,37 +546,68 @@
             }
         });
         
-        // Listen for new wishes
-        database.ref('wishes').orderByChild('timestamp').on('value', (snapshot) => {
-            wishesList.innerHTML = ''; // Clear the list
-            
-            snapshot.forEach((childSnapshot) => {
-                const wish = childSnapshot.val();
-                const wishKey = childSnapshot.key;
-                
-                // Create wish card with flip effect
-                const wishCard = document.createElement('div');
-                wishCard.className = 'wish-card';
-                wishCard.innerHTML = `
-                    <div class="wish-card-inner">
-                        <div class="wish-card-front">
-                            <div class="wish-name">${wish.name}</div>
-                            <div class="click-hint">Click to see message</div>
-                        </div>
-                        <div class="wish-card-back">
-                            <div class="wish-message">${wish.message}</div>
-                            <span class="timestamp">${formatDate(wish.timestamp)}</span>
-                        </div>
+        // Function to create a wish card
+        function createWishCard(wish, wishKey) {
+            const wishCard = document.createElement('div');
+            wishCard.className = 'wish-card';
+            wishCard.innerHTML = `
+                <div class="wish-card-inner">
+                    <div class="wish-card-front">
+                        <div class="wish-name">${wish.name}</div>
+                        <div class="click-hint">Click to see message</div>
                     </div>
-                `;
-                
-                // Add click event to toggle flip state
-                wishCard.addEventListener('click', function() {
-                    this.classList.toggle('flipped');
-                });
-                
-                wishesList.prepend(wishCard); // Add to top of list
+                    <div class="wish-card-back">
+                        <div class="wish-message">${wish.message}</div>
+                        <span class="timestamp">${formatDate(wish.timestamp)}</span>
+                    </div>
+                </div>
+            `;
+            
+            // Add click event to toggle flip state
+            wishCard.addEventListener('click', function() {
+                this.classList.toggle('flipped');
             });
+            
+            return wishCard;
+        }
+        
+        // Listen for new wishes and changes
+        database.ref('wishes').orderByChild('timestamp').on('child_added', (snapshot) => {
+            const wish = snapshot.val();
+            const wishKey = snapshot.key;
+            
+            // Create wish card
+            const wishCard = createWishCard(wish, wishKey);
+            
+            // Store the card element
+            wishElements[wishKey] = wishCard;
+            
+            // Add to the top of the list
+            wishesList.prepend(wishCard);
+        });
+        
+        // Listen for wish updates
+        database.ref('wishes').on('child_changed', (snapshot) => {
+            const wish = snapshot.val();
+            const wishKey = snapshot.key;
+            
+            // Update the existing card
+            if (wishElements[wishKey]) {
+                const newCard = createWishCard(wish, wishKey);
+                wishElements[wishKey].replaceWith(newCard);
+                wishElements[wishKey] = newCard;
+            }
+        });
+        
+        // Listen for removed wishes
+        database.ref('wishes').on('child_removed', (snapshot) => {
+            const wishKey = snapshot.key;
+            
+            // Remove the card from the DOM
+            if (wishElements[wishKey]) {
+                wishElements[wishKey].remove();
+                delete wishElements[wishKey];
+            }
         });
         
         // Create initial confetti
